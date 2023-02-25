@@ -18,6 +18,7 @@ import env from "../../../../env";
 import CusDataGridToolBar from "../../../../components/CusDataGridToolBar/cusDataGridToolBar";
 import {toast} from "react-toastify";
 import CusBox from "../../../../components/CusBox/cusBox";
+import CusConfirmDialog from "../../../../components/CusConfirmDialog/cusConfirmDialog";
 
 const FnB = () => {
     const navigate = useNavigate()
@@ -25,6 +26,8 @@ const FnB = () => {
     const foodStateInit = {
         openAddForm: false,
         openUpdateForm: false,
+        openBlockConfirm: false,
+        openDeleteConfirm: false,
         inputs: {
             name: "",
             category: "new",
@@ -82,7 +85,7 @@ const FnB = () => {
     }, {
         field: "category",headerName: "Category", width: 75
     },{
-        field: "price",headerName: "Price", width: 75
+        field: "price",headerName: "Price", width: 100
     }, {
         field: "sale_price",headerName: "Sale price", width: 100,
     }, {
@@ -92,7 +95,6 @@ const FnB = () => {
     }]
 
     const [selectingFood, setSelectingFood] = useState<GridSelectionModel>([])
-
     // CRUD Foods
     const addFoodHandler = ()=>{
         toast.promise(axios({
@@ -128,8 +130,25 @@ const FnB = () => {
         }).then(()=>setFoodStates({...foodStateInit}))
             .finally(()=>rerender())
     }
+    const blockFoodHandler = ()=>{
+        toast.promise(axios({
+            method: "put",
+            url: env.serverUrl + "/foods/" + selectingFood[0],
+            data: {...foodStates.inputs, category: undefined, state: "unavailable"}
+        }), {
+            pending: "Verifying data",
+            success: "Item just jumped out of the menu",
+            error: {
+                render({data}) {
+                    // @ts-ignore
+                    return data.response.data.message
+                }
+            }
+        }).then(()=>setFoodStates({...foodStateInit}))
+            .finally(()=>rerender())
+    }
 
-    const fetchFood = () => {
+    const fetchFoodAndOpenForm = () => {
         toast.promise(axios({
             method: "get",
             url: env.serverUrl + "/foods/" + selectingFood[0]
@@ -141,11 +160,43 @@ const FnB = () => {
                 openUpdateForm: true,
                 inputs: {...data}
             })
-        })
+        }).finally(()=>rerender())
+    }
+
+    const deleteFoodHandler = () => {
+        toast.promise(
+            axios({
+                method: "delete",
+                data: {
+                    "uid": localStorage.getItem("uid")
+                },
+                url: env.serverUrl + "/foods/" + selectingFood[0]
+            }),
+            {
+                success: "Deleted successfully",
+                pending: "Verifying data",
+                error: {
+                    render({data}) {
+                        // @ts-ignore
+                        return data.response.data.message
+                    }
+                }
+            })
+            .then(() => {
+                setFoodStates({openDeleteConfirm: false})
+            }).finally(()=>rerender())
     }
     return (
         <div>
-            {/*        Providers*/}
+            {/*       Confirm Providers*/}
+            <CusConfirmDialog confirmHandler={blockFoodHandler}
+                              open={foodStates.openBlockConfirm}
+                              closeHandler={() => setFoodStates({openBlockConfirm: false})}
+                              message={"Confirm to stop selling this item ?"}/>
+            <CusConfirmDialog confirmHandler={deleteFoodHandler}
+                              open={foodStates.openDeleteConfirm}
+                              closeHandler={() => setFoodStates({openDeleteConfirm: false})}
+                              message={"Confirm to delete this item ?"}/>
             {/* Add and Update form*/}
             <Modal
                 open={foodStates.openAddForm || foodStates.openUpdateForm}
@@ -241,11 +292,9 @@ const FnB = () => {
                         <h2>Food list</h2>
                         <CusDataGridToolBar isSelecting={!!selectingFood[0]}
                                             fnAdd={()=>setFoodStates({openAddForm: true})}
-                                            fnEdit={()=>fetchFood()}
-                                            fnLock={()=> {
-                                            }}
-                                            fnDel={()=> {
-                                            }}
+                                            fnEdit={()=>fetchFoodAndOpenForm()}
+                                            fnLock={()=> setFoodStates({openBlockConfirm: true})}
+                                            fnDel={()=> setFoodStates({openDeleteConfirm: true})}
                         />
                         <DataGrid columns={foodColumns}
                                   rows={foods}
