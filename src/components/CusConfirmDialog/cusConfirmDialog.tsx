@@ -9,7 +9,7 @@ export interface DialogPros {
     title?: string
 }
 
-const CusConfirmDialog = (props:DialogPros) => {
+const CusConfirmDialog = (props: DialogPros) => {
     const {confirmHandler, closeHandler, open, message, title} = props
     return (
         <Dialog

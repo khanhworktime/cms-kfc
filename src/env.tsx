@@ -1,5 +1,5 @@
 const serverUrl = 'http://localhost:3000/api'
 
-export default{
+export default {
     serverUrl
 }

@@ -1,9 +1,5 @@
 import Validated from "./pages/Validated";
-import {
-    createBrowserRouter, Route, Router,
-    RouterProvider, Routes,
-} from "react-router-dom";
-import Users from "./pages/Validated/Users/users";
+import {createBrowserRouter, RouterProvider,} from "react-router-dom";
 import Login from "./pages/Guest/login";
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -18,15 +14,15 @@ function App() {
         },
         {
             path: "/login",
-            element: <Login />,
+            element: <Login/>,
         }
     ]);
-  return (
-    <div className="App">
-        <ToastContainer/>
-        <RouterProvider router={router}/>
-    </div>
-  )
+    return (
+        <div className="App">
+            <ToastContainer/>
+            <RouterProvider router={router}/>
+        </div>
+    )
 }
 
 export default App

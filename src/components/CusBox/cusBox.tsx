@@ -4,6 +4,7 @@ interface CusBoxProps {
     children?: ReactNode,
     header: string
 }
+
 const CusBox = (props: CusBoxProps) => {
     return (
         <div className={"p-6 bg-white rounded-md"}>
