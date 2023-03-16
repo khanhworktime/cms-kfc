@@ -1,24 +1,15 @@
 import React, {useEffect, useReducer, useState} from 'react';
-import {
-    Autocomplete,
-    Backdrop,
-    Box,
-    Breadcrumbs,
-    Button,
-    Checkbox,
-    Fade,
-    FormControlLabel, Modal,
-    TextField
-} from "@mui/material";
+import {Autocomplete, Backdrop, Box, Button, Checkbox, Fade, FormControlLabel, Modal, TextField} from "@mui/material";
 import {HiArrowLeft} from "react-icons/hi";
 import {useNavigate} from "react-router-dom";
-import {DataGrid, GridSelectionModel} from "@mui/x-data-grid";
+import {DataGrid, GridSelectionModel, GridToolbarFilterButton} from "@mui/x-data-grid";
 import axios from "axios";
 import env from "../../../../env";
 import CusDataGridToolBar from "../../../../components/CusDataGridToolBar/cusDataGridToolBar";
 import {toast} from "react-toastify";
 import CusBox from "../../../../components/CusBox/cusBox";
 import CusConfirmDialog from "../../../../components/CusConfirmDialog/cusConfirmDialog";
+import FoodDetails, {FoodDetailProps} from "./foodDetails";
 
 const FnB = () => {
     const navigate = useNavigate()
@@ -34,32 +25,33 @@ const FnB = () => {
             price: "",
             sale_price: "",
             state: "unavailble",
-            description: ""
+            description: "",
+            image: null
         }
     }
     const [foodStates, setFoodStates] = useReducer((state: any, newState: any) => ({...state, ...newState}), {
         ...foodStateInit
     })
-
-    const [foods, setFoods] = useState([]);
+    const [foods, setFoods] = useState<Array<FoodDetailProps["food"]>>([]);
     const [foodCat, setFoodCat] = useState([]);
     const [render, requestRerender] = useState(false);
+    console.log(foods)
 
     const rerender = () => requestRerender((prev) => !prev)
 
 
-    useEffect(()=>{
+    useEffect(() => {
         axios({
             method: "get",
             url: env.serverUrl + "/foods"
-        }).then((res)=> setFoods(res.data.foods))
+        }).then((res) => setFoods(res.data.foods))
     }, [render])
 
-    useEffect(()=>{
+    useEffect(() => {
         axios({
             method: "get",
             url: env.serverUrl + "/foods/categories"
-        }).then((res)=> setFoodCat(res.data.categories))
+        }).then((res) => setFoodCat(res.data.categories))
     }, [])
 
     // Form input handler
@@ -75,32 +67,39 @@ const FnB = () => {
             newValue = newVal ? "onsale" : "unavailable"
             name = "state"
         }
+        if (name === "image") newValue = evt.target.files[0]
         setFoodStates({inputs: {...foodStates.inputs, [name]: newValue}});
     };
     // Foods table config
     const foodColumns = [{
-        field: "id",headerName: "ID", width: 50
+        field: "id", headerName: "ID", width: 100
     }, {
-        field: "name",headerName: "Name", width: 125
+        field: "name", headerName: "Name", width: 125
     }, {
-        field: "category",headerName: "Category", width: 75
-    },{
-        field: "price",headerName: "Price", width: 100
+        field: "category", headerName: "Category", width: 75
     }, {
-        field: "sale_price",headerName: "Sale price", width: 100,
+        field: "price", headerName: "Price", width: 100
     }, {
-        field: "description",headerName: "Description", width: 100
+        field: "sale_price", headerName: "Sale price", width: 100,
     }, {
-        field: "state",headerName: "State", width: 100
+        field: "description", headerName: "Description", width: 100
+    }, {
+        field: "state", headerName: "State", width: 100
     }]
 
     const [selectingFood, setSelectingFood] = useState<GridSelectionModel>([])
     // CRUD Foods
-    const addFoodHandler = ()=>{
+    const addFoodHandler = () => {
+        const form = new FormData();
+
+        for (const prop of Object.getOwnPropertyNames(foodStates.inputs)) {
+            form.append(prop, foodStates.inputs[prop])
+        }
+
         toast.promise(axios({
             method: "post",
             url: env.serverUrl + "/foods",
-            data: {...foodStates.inputs}
+            data: form,
         }), {
             pending: "Verifying data",
             success: "Added successfully",
@@ -110,14 +109,19 @@ const FnB = () => {
                     return data.response.data.message
                 }
             }
-        }).then(()=>setFoodStates({...foodStateInit}))
-            .finally(()=>rerender())
+        }).then(() => setFoodStates({...foodStateInit}))
+            .finally(() => rerender())
     }
-    const updateFoodHandler = ()=>{
+    const updateFoodHandler = () => {
+        const form = new FormData();
+
+        for (const prop of Object.getOwnPropertyNames(foodStates.inputs)) {
+            form.append(prop, foodStates.inputs[prop])
+        }
         toast.promise(axios({
             method: "put",
             url: env.serverUrl + "/foods/" + selectingFood[0],
-            data: {...foodStates.inputs}
+            data: form
         }), {
             pending: "Verifying data",
             success: "Update successfully",
@@ -127,10 +131,10 @@ const FnB = () => {
                     return data.response.data.message
                 }
             }
-        }).then(()=>setFoodStates({...foodStateInit}))
-            .finally(()=>rerender())
+        }).then(() => setFoodStates({...foodStateInit}))
+            .finally(() => rerender())
     }
-    const blockFoodHandler = ()=>{
+    const blockFoodHandler = () => {
         toast.promise(axios({
             method: "put",
             url: env.serverUrl + "/foods/" + selectingFood[0],
@@ -144,8 +148,8 @@ const FnB = () => {
                     return data.response.data.message
                 }
             }
-        }).then(()=>setFoodStates({...foodStateInit}))
-            .finally(()=>rerender())
+        }).then(() => setFoodStates({...foodStateInit}))
+            .finally(() => rerender())
     }
 
     const fetchFoodAndOpenForm = () => {
@@ -160,7 +164,7 @@ const FnB = () => {
                 openUpdateForm: true,
                 inputs: {...data}
             })
-        }).finally(()=>rerender())
+        }).finally(() => rerender())
     }
 
     const deleteFoodHandler = () => {
@@ -184,8 +188,10 @@ const FnB = () => {
             })
             .then(() => {
                 setFoodStates({openDeleteConfirm: false})
-            }).finally(()=>rerender())
+            }).finally(() => rerender())
     }
+    // @ts-ignore
+    // @ts-ignore
     return (
         <div>
             {/*       Confirm Providers*/}
@@ -200,7 +206,7 @@ const FnB = () => {
             {/* Add and Update form*/}
             <Modal
                 open={foodStates.openAddForm || foodStates.openUpdateForm}
-                onClose={()=>setFoodStates({...foodStateInit})}
+                onClose={() => setFoodStates({...foodStateInit})}
                 className={"flex-all-center"}
                 closeAfterTransition
                 slots={{backdrop: Backdrop}}
@@ -211,7 +217,7 @@ const FnB = () => {
                 }}
             >
                 <Fade in={foodStates.openAddForm || foodStates.openUpdateForm}>
-                    <div className={"bg-white w-[50vw] md:max-w-[30vw] h-fit max-h-[50vh] z-10"}>
+                    <div className={"bg-white w-[50vw] md:max-w-[30vw] h-fit max-h-[90vh] z-10"}>
                         <CusBox header={foodStates.openAddForm ? "Add new food item" : "Update a food item"}>
                             <Box component={"form"}>
                                 <TextField
@@ -255,15 +261,22 @@ const FnB = () => {
                                                    {...params}
                                                    label="Category"/>)}
                                 />
+                                <div className="w-full">
+                                    <label htmlFor={"img"}>Upload image</label>
+                                    <input id="image" name={"image"} type="file" className="w-full my-2"
+                                           onChange={handleInput}/>
+                                </div>
                                 <FormControlLabel
                                     control={
-                                    <Checkbox checked={foodStates.inputs.state == "available" || foodStates.inputs.state == "onsale"}
-                                              onChange={handleInput}
-                                              name={"state"} id={"state"} disabled={foodStates.inputs.state == "onsale"}
-                                    />}
+                                        <Checkbox
+                                            checked={foodStates.inputs.state == "available" || foodStates.inputs.state == "onsale"}
+                                            onChange={handleInput}
+                                            name={"state"} id={"state"} disabled={foodStates.inputs.state == "onsale"}
+                                        />}
                                     label="Activate this item ?"/>
                                 <FormControlLabel
-                                    control={<Checkbox checked={foodStates.inputs.state === "onsale"} onChange={handleInput}
+                                    control={<Checkbox checked={foodStates.inputs.state === "onsale"}
+                                                       onChange={handleInput}
                                                        name={"state_onsale"} id={"state_onsale"}/>}
                                     label="Put this item in sale mode ?"/>
                             </Box>
@@ -283,23 +296,42 @@ const FnB = () => {
 
 
             <header className={"mb-2.5"}>
-                <Button variant={"text"} onClick={()=>navigate(-1)}><HiArrowLeft /> Back</Button>
+                <Button variant={"text"} onClick={() => navigate(-1)}><HiArrowLeft/> Back</Button>
             </header>
             <section>
-                <h2>F&B Data resources</h2>
+                <h1>F&B Data resources</h1>
                 <div className={"flex gap-4 flex-wrap mt-4 min-h-[60vh]"}>
-                    <div className={"w-[700px] max-w-[100%] bg-white p-6 rounded-md shadow"}>
+                    <div className={"flex-grow max-w-[100%] bg-white p-6 rounded-md shadow  h-fit"}>
                         <h2>Food list</h2>
                         <CusDataGridToolBar isSelecting={!!selectingFood[0]}
-                                            fnAdd={()=>setFoodStates({openAddForm: true})}
-                                            fnEdit={()=>fetchFoodAndOpenForm()}
-                                            fnLock={()=> setFoodStates({openBlockConfirm: true})}
-                                            fnDel={()=> setFoodStates({openDeleteConfirm: true})}
+                                            fnAdd={() => setFoodStates({openAddForm: true})}
+                                            fnEdit={() => fetchFoodAndOpenForm()}
+                                            fnLock={() => setFoodStates({openBlockConfirm: true})}
+                                            fnDel={() => setFoodStates({openDeleteConfirm: true})}
                         />
                         <DataGrid columns={foodColumns}
-                                  rows={foods}
-                                  onSelectionModelChange={(newSelection)=>setSelectingFood(newSelection)}
+                                  {/*@ts-ignore*/...{}}
+                                  rows={(foods)}
+                                  onSelectionModelChange={(newSelection) => setSelectingFood(newSelection)}
+                                  components={{Toolbar: GridToolbarFilterButton}}
+                                  pageSize={10}
                                   autoHeight/>
+                    </div>
+                    <div className="w-fit bg-white p-6 rounded-md shadow">
+                        {
+                            selectingFood.length <= 0 &&
+                            // Not choosing any food items
+                            <h2>
+                                Select any food to see details
+                            </h2>
+                        }
+                        {
+                            selectingFood.length > 0 &&
+                            <div className="">
+                                <h2>Food details</h2>
+                                <FoodDetails food={foods.find((f) => f && f.id === selectingFood[0])}/>
+                            </div>
+                        }
                     </div>
                 </div>
             </section>

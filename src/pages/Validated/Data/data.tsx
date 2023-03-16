@@ -17,7 +17,6 @@ const DefaultRoute = ()=>(<div className={"flex gap-4 flex-wrap "}>
 </div>)
 
 const Data = () => {
-    const [page, getPage] = useState(window.location.pathname)
 
     return (
         <>

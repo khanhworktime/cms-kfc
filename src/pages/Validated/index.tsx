@@ -7,7 +7,7 @@ import Data from "./Data/data";
 
 const Pages = () => {
     return (
-        <div className={"bg-[#f5f7f9] w-screen min-h-screen pl-[15vw]"}>
+        <div className={"bg-[#f5f7f9] w-screen min-h-screen sm:pl-[15vw]"}>
             <Navbar/>
             <Routes>
                 <Route path={"/"} element={<Dashboard/>}/>

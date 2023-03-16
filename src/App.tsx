@@ -3,9 +3,14 @@ import {createBrowserRouter, RouterProvider,} from "react-router-dom";
 import Login from "./pages/Guest/login";
 import {ToastContainer} from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-import React from "react";
+import React, {useEffect} from "react";
 
 function App() {
+
+    useEffect(()=>{
+        localStorage.removeItem("uid")
+    }, [])
+
     const router = createBrowserRouter([
         {
             path: "*",

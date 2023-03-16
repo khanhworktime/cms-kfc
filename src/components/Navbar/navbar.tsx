@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {HiChartPie, HiDatabase, HiLogout, HiUserCircle} from "react-icons/hi";
 import styles from './navbar.module.css'
 import {Link, useNavigate} from "react-router-dom";
+import logoImg from "../../assets/logo.png"
 import axios from "axios";
 import env from "../../env";
 
@@ -19,14 +20,14 @@ const Navbar = () => {
             method: "get",
             url: env.serverUrl + "/users/" + localStorage.getItem("uid")
         }).then((res)=> setUser(res.data.user))
-    })
+    }, [])
 
     return (
         <div
-            className={"fixed left-0 top-0 rounded-r-md bg-white h-screen w-[15vw] gap-6 drop-shadow-md flex flex-col p-6 justify-between"}>
+            className={"fixed left-0 top-0 rounded-r-md bg-white h-screen w-[15vw] gap-6 drop-shadow-md hidden sm:flex flex flex-col p-6 justify-between"}>
             {/*Main function*/}
             <div>
-                <div className={"brandLogo mb-4"}>Logo (❁´◡`❁)</div>
+                <div className={"brandLogo mb-4"}><img src={logoImg} className={"rounded-sm"}/></div>
                 <div className={"flex flex-col"}>
                     <Link to={'/'} className={"flex items-center " + styles[page == "/" ? "navActive" : "navItem"]}>
                         <HiChartPie className={"block mr-2"}/>

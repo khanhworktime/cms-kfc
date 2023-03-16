@@ -1,9 +1,17 @@
-import React, {useReducer} from 'react';
+import React, {useEffect, useReducer} from 'react';
 import {Button, TextField} from "@mui/material";
 import {toast} from "react-toastify";
 import axios from "axios";
 import env from "../../env";
 import {useNavigate} from "react-router-dom";
+import cover from "../../assets/cover.jpg"
+
+const loginStyle = {
+    backgroundImage: `url(${cover})`,
+    backgroundPosition: "center",
+    backgroundOrigin: "center",
+    backgroundSize: "cover"
+}
 
 const Login = () => {
 
@@ -15,6 +23,10 @@ const Login = () => {
             password: ""
         }
     )
+
+    useEffect(()=>{
+        localStorage.removeItem("uid")
+    }, [])
 
     const signInHandler = () => {
         const loginFn = axios({
@@ -42,13 +54,13 @@ const Login = () => {
 
     return (
         <div>
-            <section className="bg-gray-200 transition-all">
+            <section className="transition-all"  style={loginStyle}>
                 <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
-                    <div className="flex items-center mb-6 text-3xl font-bold text-blue-500">
-                        KFC CMS
-                    </div>
                     <div
                         className="w-full bg-white rounded-lg shadow max-w-[500px]">
+                        <h1 className="text-center my-6 text-3xl font-bold text-blue-500">
+                            KFC CMS
+                        </h1>
                         <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
                             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900">
                                 Sign in to your account
@@ -67,11 +79,6 @@ const Login = () => {
                                                required
                                                onChange={(e) => updateInput({password: e.target.value})}
                                     />
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <a href="#"
-                                       className="text-sm font-medium text-primary-600">Forgot
-                                        password?</a>
                                 </div>
                                 <Button variant={"contained"} onClick={signInHandler}
                                         className="w-full text-white bg-primary-600">
