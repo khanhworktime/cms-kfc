@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {HiChartPie, HiDatabase, HiLogout, HiUserCircle} from "react-icons/hi";
+import {MdInventory} from "react-icons/md"
 import styles from './navbar.module.css'
 import {Link, useNavigate} from "react-router-dom";
 import logoImg from "../../assets/logo.png"
@@ -27,7 +28,7 @@ const Navbar = () => {
             className={"fixed left-0 top-0 rounded-r-md bg-white h-screen w-[15vw] gap-6 drop-shadow-md hidden sm:flex flex flex-col p-6 justify-between"}>
             {/*Main function*/}
             <div>
-                <div className={"brandLogo mb-4"}><img src={logoImg} className={"rounded-sm"}/></div>
+                <div className={"brandLogo mb-4"}><img src={logoImg} className={"rounded-sm"} alt={"KFC"}/></div>
                 <div className={"flex flex-col"}>
                     <Link to={'/'} className={"flex items-center " + styles[page == "/" ? "navActive" : "navItem"]}>
                         <HiChartPie className={"block mr-2"}/>
@@ -42,6 +43,11 @@ const Navbar = () => {
                           className={"flex items-center " + styles[page.includes("data") ? "navActive" : "navItem"]}>
                         <HiDatabase className={"block mr-2"}/>
                         <div>Data</div>
+                    </Link>
+                    <Link to={'/inventory'}
+                          className={"flex items-center " + styles[page.includes("inventory") ? "navActive" : "navItem"]}>
+                        <MdInventory className={"block mr-2"}/>
+                        <div>Inventory</div>
                     </Link>
                 </div>
             </div>

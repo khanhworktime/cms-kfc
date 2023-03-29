@@ -4,6 +4,7 @@ import {Route, Routes} from "react-router-dom";
 import Dashboard from "./dashboard";
 import Users from "./Users/users";
 import Data from "./Data/data";
+import Inventory from "./Inventory/inventory";
 
 const Pages = () => {
     return (
@@ -13,6 +14,7 @@ const Pages = () => {
                 <Route path={"/"} element={<Dashboard/>}/>
                 <Route path={"/users"} element={<Users/>}/>
                 <Route path={"/data/*"} element={<Data/>}/>
+                <Route path={"/inventory/*"} element={<Inventory/>}/>
             </Routes>
         </div>
     );
