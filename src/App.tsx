@@ -6,10 +6,6 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
 
-    // useEffect(()=>{
-    //     localStorage.removeItem("uid")
-    // }, [])
-
     const router = createBrowserRouter([
         {
             path: "*",

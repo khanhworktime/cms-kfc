@@ -11,6 +11,8 @@ import CusBox from "../../../../components/CusBox/cusBox";
 import CusConfirmDialog from "../../../../components/CusConfirmDialog/cusConfirmDialog";
 import FoodDetails, {FoodDetailProps} from "./foodDetails";
 import NoImgFound from "../../../../components/NoImgFound/noImgFound";
+import useFetch from "../../../../Hooks/useFetch";
+import LoadingCover from "../../../../components/LoadingCover/loadingCover";
 
 const FnB = () => {
     const navigate = useNavigate()
@@ -36,16 +38,18 @@ const FnB = () => {
     const [foods, setFoods] = useState<Array<FoodDetailProps["food"]>>([]);
     const [foodCat, setFoodCat] = useState([]);
     const [render, requestRerender] = useState(false);
+    const {data, isLoading, fetchFor} = useFetch({
+        method: "get",
+        path: "/foods",
+        fetchFor: "Food"
+    })
 
     const rerender = () => requestRerender((prev) => !prev)
 
-    console.log(foodStates.inputs)
     useEffect(() => {
-        axios({
-            method: "get",
-            url: env.serverUrl + "/foods"
-        }).then((res) => setFoods(res.data.foods))
-    }, [render])
+        // @ts-ignore
+        if (data != null && fetchFor == "Food") setFoods(data.foods)
+    }, [data])
 
     useEffect(() => {
         axios({
@@ -203,6 +207,7 @@ const FnB = () => {
     return (
         <div>
             {/*       Confirm Providers*/}
+            <LoadingCover visible={isLoading}/>
             <CusConfirmDialog confirmHandler={blockFoodHandler}
                               open={foodStates.openBlockConfirm}
                               closeHandler={() => setFoodStates({openBlockConfirm: false})}

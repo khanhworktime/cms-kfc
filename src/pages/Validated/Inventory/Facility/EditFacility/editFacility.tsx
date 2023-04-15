@@ -1,5 +1,5 @@
-import React, {EventHandler, useEffect, useReducer, useState} from 'react';
-import {Autocomplete, Backdrop, Box, Button, Checkbox, Fade, FormControlLabel, Modal, TextField} from "@mui/material";
+import React, {EventHandler, useReducer, useState} from 'react';
+import { Backdrop, Box, Button, Checkbox, Fade, FormControlLabel, Modal, TextField} from "@mui/material";
 import CusBox from "../../../../../components/CusBox/cusBox";
 import {IFacilities} from "../facilityDetails";
 import axios from "axios";
@@ -8,6 +8,8 @@ import NoImgFound from "../../../../../components/NoImgFound/noImgFound";
 import {toast} from "react-toastify";
 import {useForm} from "react-hook-form";
 import CusConfirmDialog from "../../../../../components/CusConfirmDialog/cusConfirmDialog";
+import useFetch, {fetchProps} from "../../../../../Hooks/useFetch";
+import {useParams} from "react-router-dom";
 
 type editFacilityProps = {
     openForm:boolean,
@@ -18,22 +20,24 @@ type editFacilityProps = {
 }
 
 const EditFacility = (props: editFacilityProps) => {
+
+    //TODO:Fix not re rendering the page after alternate the data!
+
     const {openForm,closeHandler,isUpdate,item, reRender} = props
     const {register, handleSubmit, formState:{errors}} = useForm()
-
-    const [units, setUnits] = useState<Array<string>>([]);
-
-
-    useEffect(()=>{
-        axios({
-            method: "get",
-            url: env.serverUrl + "/facilities/units"
-        }).then((res) => setUnits(res.data.units))
-    }, [])
 
     const [facilityStates, setFacilityStates] = useReducer((state: any, newState: any) => ({...state, ...newState}), {
         ...item
     })
+
+    const [fetchOptions, setFetchOptions] = useState<fetchProps>({
+        method: "get",
+        sendData: undefined,
+        path: ""
+    })
+
+    const {data, isLoading, isError} = useFetch({...fetchOptions})
+    const params = useParams();
 
     //@ts-ignore
     const previewImage = (facilityStates.image) instanceof File ? URL.createObjectURL(facilityStates.image) : facilityStates.image;
@@ -58,7 +62,7 @@ const EditFacility = (props: editFacilityProps) => {
         Object.keys(facilityStates).forEach((prop: string)=>{
             submitForm.append(prop, facilityStates[prop])
         })
-        submitForm.append("uid", localStorage.getItem("uid") || "")
+        submitForm.append("warehouseId", params.whId || "")
         toast.promise(axios({
             method: 'put',
             url: env.serverUrl + "/facilities/" + facilityStates.id,
@@ -79,7 +83,7 @@ const EditFacility = (props: editFacilityProps) => {
         Object.keys(facilityStates).forEach((prop: string)=>{
             submitForm.append(prop, facilityStates[prop])
         })
-        submitForm.append("uid", localStorage.getItem("uid") || "")
+        submitForm.append("warehouseId", params.whId || "")
         toast.promise(axios({
             method: 'post',
             url: env.serverUrl + "/facilities",
@@ -168,9 +172,9 @@ const EditFacility = (props: editFacilityProps) => {
                                         defaultValue={facilityStates.amount}
                                         id="amount"
                                         label="Amount"
-                                        {...register("amount", {min: 0})}
+                                        {...register("amount", {pattern: /^\d+$/})}
                                         error={!!errors.amount}
-                                        helperText={!!errors.amount && "Amount must be >= 0"}
+                                        helperText={(!!errors.amount && "Amount must be a positive integer (Such as 1, 0, 100)")}
                                         onChange={inputHandler}
                                     />
                                     <TextField
@@ -184,18 +188,6 @@ const EditFacility = (props: editFacilityProps) => {
                                         error={!!errors.amount}
                                         helperText={!!errors.issue_amount ? (errors.issue_amount.type == "min" ? "Amount must be >= 0" : "Amount issued much be <= total amount") : undefined}
                                         onChange={inputHandler}
-                                    />
-                                    <Autocomplete
-                                        id="unit"
-                                        value={facilityStates.unit}
-                                        defaultValue={facilityStates.unit}
-                                        options={units}
-                                        {/*@ts-ignore*/...{}}
-                                        onChange={inputHandler}
-                                        renderInput={(params) => (
-                                            <TextField margin={"normal"}
-                                                       {...params}
-                                                       label="Unit"/>)}
                                     />
                                     <div className="w-full">
                                         <label htmlFor={"img"}>Upload image</label>
