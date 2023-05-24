@@ -1,10 +1,8 @@
 import React, {useEffect, useReducer, useState} from 'react';
 import {Button} from "@mui/material";
 import {HiArrowLeft} from "react-icons/hi";
-import {useLocation, useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import FacilityDetails, {IFacilities} from "./facilityDetails";
-import axios from "axios";
-import env from "../../../../env";
 import EditFacility from "./EditFacility/editFacility";
 import useFetch from "../../../../Hooks/useFetch";
 import LoadingCover from "../../../../components/LoadingCover/loadingCover";
@@ -73,6 +71,7 @@ const Facility = () => {
                     openAddForm: false,
                     selectedItem: undefined
                 })
+                reRender()
             }}
             reRender={reRender}
             isUpdate={facilityStates.openUpdateForm}

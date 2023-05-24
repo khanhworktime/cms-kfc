@@ -16,8 +16,7 @@ const Pages = () => {
             <Navbar/>
             <div className={"flex-grow pr-4 h-screen overflow-y-scroll"}>
                 <Routes>
-                    <Route path={"/"} element={<Dashboard/>}/>
-                    <Route path={"/users"} element={<Users/>}/>
+                    <Route path={"/"} element={<Users/>}/>
                     <Route path={"/data/*"} element={<Data/>}/>
                     <Route path={"/inventory/*"} element={<Inventory/>}/>
                 </Routes>

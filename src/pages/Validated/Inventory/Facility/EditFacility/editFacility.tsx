@@ -33,7 +33,8 @@ const EditFacility = (props: editFacilityProps) => {
     const [fetchOptions, setFetchOptions] = useState<fetchProps>({
         method: "get",
         sendData: undefined,
-        path: ""
+        path: "",
+        reFetch: true
     })
 
     const {data, isLoading, isError} = useFetch({...fetchOptions})

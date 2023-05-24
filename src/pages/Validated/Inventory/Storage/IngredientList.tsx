@@ -47,7 +47,7 @@ function IngredientList(props: ingredientListProps) {
                 </Button>
             </div>
             {
-                ingredients.length == 0 && <NoDataFound title={"There is no ingredients"}/>
+                ingredients.length == 0 && <NoDataFound title={"There is no ingredients"} addHandler={()=>updateModalController((prev) => ({...prev, addModal: true, selected: initIngredient}))}/>
             }{
                 ingredients.length > 0 &&
             <div className={"grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"}>

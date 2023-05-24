@@ -52,13 +52,6 @@ const Navbar = () => {
                         <HiChartPie className={"block "}/>
                         <motion.div
                             animate={{display: animateCall.isCollapse ? "none" : "block"}}
-                        >Dashboard</motion.div>
-                    </Link>
-                    <Link to={'/users'}
-                          className={"flex items-center gap-2 "+ styles[page.includes("users") ? "navActive" : "navItem"]}>
-                        <HiUserCircle className={"block "}/>
-                        <motion.div
-                            animate={{display: animateCall.isCollapse ? "none" : "block"}}
                         >Users</motion.div>
                     </Link>
                     <Link to={'/data'}
